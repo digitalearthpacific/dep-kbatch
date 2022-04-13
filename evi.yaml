@@ -1,0 +1,8 @@
+name: "evi-job"
+code: "evi.py"
+args:
+  - "python"
+  - "evi.py"
+image: "mcr.microsoft.com/planetary-computer/python:latest"
+
+

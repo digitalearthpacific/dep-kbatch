@@ -1,0 +1,19 @@
+kbatch configure --kbatch-url=https://dep-pccompute.westeurope.cloudapp.azure.com/compute/services/kbatch --token='3f1c6f1be3c64d82bf86de8cfca0541d'
+
+kbatch configure --kbatch-url=https://pccompute.westeurope.cloudapp.azure.com/compute/services/kbatch --token='bf7338382bbd4c199674a29d9f1f971d'
+
+kbatch job submit -f dask-gateway-job.yaml 
+kbatch job list -o table
+kbatch pod list -o table
+kbatch pod logs dask-gateway-job-2b2b2-lmcwk 
+
+https://kbatch.readthedocs.io/en/latest/
+
+cog tif using gdal : 
+#gdalwarp -of COG src1.tif src2.tif out.tif 
+rio cogeo create src.tif out.tif
+rio cogeo validate mangrove-fiji.tif 
+https://dep-pccompute.westeurope.cloudapp.azure.com/compute/services/kbatch/
+https://dep-pccompute.westeurope.cloudapp.azure.com/compute/hub/token
+
+
