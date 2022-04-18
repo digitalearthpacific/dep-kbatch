@@ -1,0 +1,8 @@
+name: "sipi-job"
+code: "sipi.py"
+args:
+  - "python"
+  - "sipi.py"
+image: "mcr.microsoft.com/planetary-computer/python:latest"
+
+

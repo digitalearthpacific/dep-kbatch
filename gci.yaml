@@ -1,0 +1,8 @@
+name: "gci-job"
+code: "gci.py"
+args:
+  - "python"
+  - "gci.py"
+image: "mcr.microsoft.com/planetary-computer/python:latest"
+
+

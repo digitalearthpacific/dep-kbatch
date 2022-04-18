@@ -17,3 +17,4 @@ https://dep-pccompute.westeurope.cloudapp.azure.com/compute/services/kbatch/
 https://dep-pccompute.westeurope.cloudapp.azure.com/compute/hub/token
 
 
+.config/kbatch/config.json

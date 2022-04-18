@@ -1,5 +1,5 @@
 """
-Compute EVI for the AOI Sentinel-2 images, saving to Blob Storage.
+Compute GCI for the AOI Sentinel-2 images, saving to Blob Storage.
 """
 import io, os
 import pystac_client
@@ -35,7 +35,7 @@ def main():
     )
 
     #area of interest
-    country_name = "Samoa"
+    country_name = "Tonga"
     df = gpd.read_file('pic_bounding_box.geojson')
     country = df.loc[df['NAME'] == country_name]
     area_of_interest = json.loads(country.geometry.to_json())['features'][0]['geometry']
@@ -63,7 +63,7 @@ def main():
             items,
             epsg=epsg,
             resolution=50, #resolution/m
-            assets=["B02", "B04", "B08"],  # blue, red, nir
+            assets=["B03", "B08"],  # green, nir
             chunksize=8192, #4096, #256,  # set chunk size to 256 to get one chunk per time step
     )
         .where(lambda x: x > 0, other=np.nan)  # sentinel-2 uses 0 as nodata
@@ -74,25 +74,14 @@ def main():
 
     ds = ds.resample(time="1Y").median("time", keep_attrs=True)
 
-    #median composite
-    #ds = ds.median(dim="time").compute()
-    
-    #blue = ds.sel(band="blue")
-    #red = ds.sel(band="red")    
-    #nir = ds.sel(band="nir")
-
-    print("Computing EVI : " + country_name)
+    print("Computing GCI : " + country_name)
 
     #indicies calculation
-    #ndvi = ((nir - red) / (red + nir)).compute()
-    #evi = ms.evi(nir, red, blue).compute()
-    evi_aggs = [ms.evi(x.sel(band="nir"), x.sel(band="red"), x.sel(band="blue")) for x in ds]
-    #evi_list = xr.concat(evi_aggs, dim="time")
+    gci_aggs = [ms.gci(x.sel(band="nir"), x.sel(band="green")) for x in ds]
     
-
     #smooth
-    mean_aggs = [mean(evi_agg) for evi_agg in evi_aggs]
-    evi = xr.concat(mean_aggs, dim="time")
+    mean_aggs = [mean(gci_agg) for gci_agg in gci_aggs]
+    gci = xr.concat(mean_aggs, dim="time")
 
     #generate and upload
     account_url = "https://deppcpublicstorage.blob.core.windows.net/output?sp=racwl&st=2022-04-03T23:17:37Z&se=2023-05-01T07:17:37Z&spr=https&sv=2020-08-04&sr=c&sig=wJkqOOZCPromubKaTzCAAY%2FvV5LJ7fIYHrbpwOJQDdk%3D"
@@ -100,21 +89,14 @@ def main():
 
     print("Creating COG GeoTiff...")
     country_name = country_name.lower()
-    evi.rio.to_raster("evi_{country_name}_50m.tif", driver="COG")
-    with open("evi_{country_name}_50m.tif", "rb") as f:
+    gci.rio.to_raster("gci_{country_name}_50m.tif", driver="COG")
+    with open("gci_{country_name}_50m.tif", "rb") as f:
         container_client.upload_blob(
-            f"/evi/{country_name}_50m.tif", f, overwrite=True
+            f"/gci/{country_name}_50m.tif", f, overwrite=True
         )
 
 
-    #for evi in evi_list:
-    #    print("Creating COG GeoTiff...")
-    #    evi.rio.to_raster("evi_{country_name}_{item.datetime}.tif", driver="COG")
-    #    with open("evi_{country_name}_{item.datetime}.tif", "rb") as f:
-    #        container_client.upload_blob(
-    #            f"/evi/{country_name}_{item.datetime}.tif", f, overwrite=True
-    #        )
-
+    
     print("Completed.")
 
 
